@@ -3,8 +3,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.io.wavfile import write
 
-
-
 """
 time       = 1            # 計測時間[s]
 samplerate = 44100  # サンプリングレート
