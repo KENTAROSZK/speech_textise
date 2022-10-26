@@ -68,7 +68,7 @@ wf.close()
 
 
 
-time.sleep(TIME+2)
+time.sleep(TIME)
 
 
 
