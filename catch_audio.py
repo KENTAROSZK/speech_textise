@@ -18,6 +18,7 @@ FRAME_SIZE    = 1024         # フレームサイズ
 CHANNELS      = 1            # モノラルかバイラルか
 INPUT_DEVICE_INDEX = 0       # マイクのチャンネル
 NUM_OF_LOOP   = int(SAMPLE_RATE / FRAME_SIZE * TIME)
+CALL_BACK_FREQUENCY = 3      # コールバック呼び出しの周期[sec]
 
 
 OUTPUT_WAV_FILE = "./output.wav"
@@ -146,7 +147,7 @@ def main():
                         channels           = CHANNELS,
                         input_device_index = INPUT_DEVICE_INDEX,
                         input              = True, 
-                        frames_per_buffer  = SAMPLE_RATE*2, # 2秒周期でコールバック
+                        frames_per_buffer  = SAMPLE_RATE*CALL_BACK_FREQUENCY, # CALL_BACK_FREQUENCY 秒周期でコールバック
                         stream_callback    = callback)
     
     stream.start_stream()
