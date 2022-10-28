@@ -8,11 +8,11 @@ import wave
 import time
 from datetime import datetime
 
-
+#from PyQt5.QtWidgets import QApplication, QWidget
 
 
 FORMAT        = pyaudio.paInt16
-TIME          = 10           # 計測時間[s]
+TIME          = 15           # 計測時間[s]
 SAMPLE_RATE   = 44100        # サンプリングレート
 FRAME_SIZE    = 1024         # フレームサイズ
 CHANNELS      = 1            # モノラルかバイラルか
@@ -65,7 +65,7 @@ def record_and_save():
     pa.terminate()
 
 
-    wf = wave.open(OUTPUT_PATH, 'wb')
+    wf = wave.open(OUTPUT_WAV_FILE, 'wb')
     wf.setnchannels(CHANNELS)
     wf.setsampwidth(pa.get_sample_size(FORMAT))
     wf.setframerate(SAMPLE_RATE)
@@ -77,7 +77,7 @@ def record_and_save():
 def play_wav_file():
 
 
-    wf = wave.open(OUTPUT_PATH, 'rb')
+    wf = wave.open(OUTPUT_WAV_FILE, 'rb')
     pa = pyaudio.PyAudio()
 
 
@@ -126,9 +126,7 @@ def callback(in_data, frame_count, time_info, status):
         return (None, pyaudio.paContinue)
 
 
-
-def main():
-    
+def realtime_textise():
     with open(OUTPUT_TXT_FILE, 'w') as f: #txtファイルの新規作成
         DATE = datetime.now().strftime('%Y%m%d_%H:%M:%S')
         f.write("日時 : " + DATE + "\n") #最初の一行目に日時を記載する
@@ -153,11 +151,29 @@ def main():
     stream.start_stream()
     
     while stream.is_active():
-        time.sleep(0.1)
+        print(datetime.now().strftime('%Y%m%d_%H_%M'))
+        time.sleep(0.001)
     
     stream.stop_stream()
     stream.close()
     audio.terminate()
+
+
+def whisper_to_textise():
+    import whisper
+    model  = whisper.load_model("base")
+    result = model.transcribe(OUTPUT_WAV_FILE, fp16=False)
+    print(result["text"])
+
+
+
+
+def main():
+    #record_and_save()   # 録音する場合
+    realtime_textise() # リアルタイム文字起こし
+    #whisper_to_textise() # whisperを使って、文字起こし
+
+    
 
 
 
@@ -167,3 +183,8 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+
+
+
