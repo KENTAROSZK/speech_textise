@@ -9,11 +9,13 @@ import wave
 import time
 from datetime import datetime
 
+import pandas as pd
+
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QLabel
 
 
 FORMAT        = pyaudio.paInt16
-TIME          = 3           # 計測時間[s]
+TIME          = 60           # 計測時間[s]
 SAMPLE_RATE   = 44100        # サンプリングレート
 FRAME_SIZE    = 1024         # フレームサイズ
 CHANNELS      = 1            # モノラルかバイラルか
@@ -24,6 +26,7 @@ CALL_BACK_FREQUENCY = 3      # コールバック呼び出しの周期[sec]
 
 OUTPUT_WAV_FILE = "./output.wav"
 OUTPUT_TXT_FILE = "./" + datetime.now().strftime('%Y%m%d_%H_%M') +".txt" # テキストファイルのファイル名を日付のtxtファイルにする
+OUTPUT_ONE_SENTENCE_FILE = "./one_sentence.txt"
 
 
 
@@ -163,9 +166,25 @@ def realtime_textise():
 
 def whisper_to_textise():
     import whisper
+
+    # tiny < base < small < medium < largeの順に高精度になるが、重くなる。(メモリ不足になる可能性がある)
     model  = whisper.load_model("base")
-    result = model.transcribe(OUTPUT_WAV_FILE, fp16=False)
-    print(result["text"])
+    result = model.transcribe(OUTPUT_WAV_FILE, fp16=False, language="ja")
+
+    # whisperのモデルを"base"でインスタンス化すると区切り文字"。"や"!"がテキスト化されないので、
+    # 区切り文字を強制作成するためにpandasのDataFrameにいったん格納する。
+    # 区切り文字が必要な理由はpysummarizationで区切り文字でトークナイズする必要があるため、前処理として区切り文字を付けておく必要がある
+    df_result = pd.DataFrame(result["segments"])[["text"]]
+    series_result = df_result['text']
+
+    list_result = series_result.values.tolist()
+
+    one_sentence = '。'.join(list_result)
+
+    df_result.to_csv(OUTPUT_TXT_FILE, header=False, index=False)
+
+    with open(OUTPUT_ONE_SENTENCE_FILE, 'w',encoding='utf-8', errors='ignore') as f: #txtファイルの新規作成
+        f.write(one_sentence)
 
 
 
