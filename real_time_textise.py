@@ -7,7 +7,6 @@ import pyaudio
 
 FORMAT        = pyaudio.paInt16
 SAMPLE_RATE   = 44100        # サンプリングレート
-FRAME_SIZE    = 1024         # フレームサイズ
 CHANNELS      = 1            # モノラルかバイラルか
 INPUT_DEVICE_INDEX = 0       # マイクのチャンネル
 CALL_BACK_FREQUENCY = 3      # コールバック呼び出しの周期[sec]
@@ -39,6 +38,8 @@ def callback(in_data, frame_count, time_info, status):
     try:
         audiodata  = sr.AudioData(in_data, SAMPLE_RATE, 2)
         sprec_text = sprec.recognize_google(audiodata, language='ja-JP')
+
+        print(sprec_text)
         
         with open(OUTPUT_TXT_FILE,'a') as f: #ファイルの末尾に追記していく
             f.write("\n" + sprec_text)
